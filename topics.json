@@ -1,0 +1,94 @@
+{
+  "topics": [
+    {
+      "id": "basic_data_structures",
+      "name": "Basic Data Structures",
+      "concepts": [
+        "lists mutable",
+        "tuples immutable",
+        "mutability side effects"
+      ],
+      "prerequisites": []
+    },
+    {
+      "id": "control_flow",
+      "name": "Control Flow",
+      "concepts": [
+        "if/elif/else",
+        "while loops",
+        "for loops",
+        "state variables"
+      ],
+      "prerequisites": []
+    },
+    {
+      "id": "functions_and_scope",
+      "name": "Functions and Scope",
+      "concepts": [
+        "function definition",
+        "parameters & return",
+        "local vs global scope",
+        "bindings"
+      ],
+      "prerequisites": [
+        "control_flow"
+      ]
+    },
+    {
+      "id": "recursion_fundamentals",
+      "name": "Recursion Fundamentals",
+      "concepts": [
+        "base case",
+        "recursive case",
+        "recursive call",
+        "call stack frames",
+        "decrease-and-conquer"
+      ],
+      "prerequisites": [
+        "functions_and_scope"
+      ]
+    },
+    {
+      "id": "divide_and_conquer_algorithms",
+      "name": "Divide-and-Conquer Algorithms",
+      "concepts": [
+        "divide-and-conquer pattern",
+        "towers of hanoi",
+        "recursive fibonacci",
+        "palindrome check"
+      ],
+      "prerequisites": [
+        "recursion_fundamentals"
+      ]
+    },
+    {
+      "id": "dictionaries",
+      "name": "Dictionaries",
+      "concepts": [
+        "keys and values",
+        "dictionary lookup",
+        "frequency counting",
+        "dictionary inversion",
+        "hash table basics",
+        "key immutability"
+      ],
+      "prerequisites": [
+        "basic_data_structures"
+      ]
+    },
+    {
+      "id": "memoization_and_efficiency",
+      "name": "Memoization and Efficiency",
+      "concepts": [
+        "memoization cache",
+        "using a dictionary as a memo",
+        "exponential vs linear",
+        "performance gain"
+      ],
+      "prerequisites": [
+        "recursion_fundamentals",
+        "dictionaries"
+      ]
+    }
+  ]
+}
