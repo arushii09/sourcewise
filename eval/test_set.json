@@ -3,25 +3,550 @@
     {
       "id": "q01",
       "question": "What is a base case in recursion?",
-      "reference_answer": "The base case is the simplest instance that is solved directly without another recursive call, so the recursion stops.",
+      "modality": "text",
+      "reference_answer": "A base case is a case that does not make a recursive call and can be solved directly, so the recursion stops; in the countdown example it is the frame where n=0.",
       "gold": [
-        {"source_type": "book", "loc_num": 66},
-        {"source_type": "video", "loc_num": 293}
-      ],
-      "modality": "text"
+        {
+          "source_type": "book",
+          "loc_num": 66
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 6
+        },
+        {
+          "source_type": "video",
+          "loc_num": 293
+        }
+      ]
     },
     {
       "id": "q02",
-      "question": "What are the base cases of the Fibonacci (Females) example on the slides?",
-      "reference_answer": "Females(0) = 1 and Females(1) = 1.",
+      "question": "What happens when a recursive function never reaches a base case?",
+      "modality": "text",
+      "reference_answer": "It keeps making recursive calls forever (infinite recursion); Python stops it with a RuntimeError when the maximum recursion depth is exceeded.",
       "gold": [
-        {"source_type": "slide", "loc_num": 33}
-      ],
-      "modality": "slide"
+        {
+          "source_type": "book",
+          "loc_num": 66
+        },
+        {
+          "source_type": "book",
+          "loc_num": 67
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 6
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "What does a stack diagram show for a recursive function?",
+      "modality": "figure",
+      "reference_answer": "It shows one frame per function call on the stack, each with its own parameter value; for countdown(3) there are frames with n = 3, 2, 1 and 0 below __main__.",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 66
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "What is a frame, and can several exist at the same time during recursion?",
+      "modality": "text",
+      "reference_answer": "Python creates a frame for every function call to hold its local variables and parameters; for a recursive function there can be more than one frame on the stack at once.",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 66
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 11
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 12
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "In the stack diagram for countdown(3), what are the values of n in the frames?",
+      "modality": "figure",
+      "reference_answer": "The four countdown frames have n = 3, 2, 1 and 0; the bottom frame, where n=0, is the base case and makes no further call.",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 66
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "How is a dictionary different from a list?",
+      "modality": "text",
+      "reference_answer": "In a list the indices must be integers, while a dictionary's keys can be almost any type; a dictionary maps keys to values and the order of its items is unpredictable.",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 125
+        },
+        {
+          "source_type": "book",
+          "loc_num": 126
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 49
+        }
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "How can a dictionary be used to count how often each letter appears in a string?",
+      "modality": "text",
+      "reference_answer": "Create an empty dictionary and loop over the characters; add a character as a key with value 1 the first time it is seen and increment its value after that (the histogram function).",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 127
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 51
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "What is a reverse lookup in a dictionary and why is it slow?",
+      "modality": "text",
+      "reference_answer": "A reverse lookup finds the key for a given value; there is no simple syntax so you have to search through the dictionary, and several keys may map to the same value, so it is much slower than a normal lookup.",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 128
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "What is a memo and how does it speed up the fibonacci function?",
+      "modality": "text",
+      "reference_answer": "A memo is a previously computed value stored for later use; the memoized fibonacci keeps results in a dictionary (known) and checks it first, so values are not recomputed.",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 131
+        },
+        {
+          "source_type": "book",
+          "loc_num": 132
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 55
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 56
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "Why can't a list be used as a dictionary key?",
+      "modality": "text",
+      "reference_answer": "Dictionary keys must be hashable; mutable types such as lists could change after being hashed and end up in a different location, so Python raises a TypeError for unhashable lists (tuples can be used instead).",
+      "gold": [
+        {
+          "source_type": "book",
+          "loc_num": 130
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 48
+        }
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "What are the base cases and the recursive case in the Fibonacci (Females) example?",
+      "modality": "slide",
+      "reference_answer": "The base cases are Females(0) = 1 and Females(1) = 1; the recursive case is Females(n) = Females(n-1) + Females(n-2).",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 32
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 33
+        },
+        {
+          "source_type": "video",
+          "loc_num": 1615
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "How does the recursive multiplication example reduce a*b to a smaller problem?",
+      "modality": "figure",
+      "reference_answer": "a*b is rewritten as a + a*(b-1), reducing b by one each time; the base case is b == 1, which returns a.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 9
+        },
+        {
+          "source_type": "video",
+          "loc_num": 543
+        }
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "What are the base case and the recursive step for computing a factorial?",
+      "modality": "slide",
+      "reference_answer": "The base case is n == 1, which returns 1; the recursive step returns n * factorial(n-1).",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 10
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 13
+        }
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "What observations does the lecture make about scopes during recursive calls?",
+      "modality": "slide",
+      "reference_answer": "Each recursive call creates its own scope; variable bindings in a scope are not changed by a recursive call; and flow of control returns to the previous scope when the call returns a value.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 11
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 12
+        }
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "How does the Towers of Hanoi solution move a stack of n discs?",
+      "modality": "figure",
+      "reference_answer": "If n is 1 it prints the move; otherwise it moves n-1 discs from the start to the spare spike, moves the single disc to the target, then moves the n-1 discs from the spare spike to the target.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 19
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 20
+        },
+        {
+          "source_type": "video",
+          "loc_num": 1418
+        }
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "How does the recursive palindrome check shrink the problem?",
+      "modality": "slide",
+      "reference_answer": "After converting the string to lowercase letters only, a string of length 0 or 1 is a palindrome; otherwise it is a palindrome if the first and last characters match and the middle section is a palindrome.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 36
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 37
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 38
+        }
+      ]
+    },
+    {
+      "id": "q17",
+      "question": "How do you test whether a key is in a dictionary, and what happens when you look up a missing key?",
+      "modality": "slide",
+      "reference_answer": "Use the in operator (for example 'John' in grades returns True); looking up a key that is not there with d[key] gives a KeyError.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 45
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 46
+        }
+      ]
+    },
+    {
+      "id": "q18",
+      "question": "What do keys() and values() give you for a dictionary?",
+      "modality": "slide",
+      "reference_answer": "keys() returns an iterable that acts like a tuple of all the keys, and values() returns one for all the values.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 47
+        }
+      ]
+    },
+    {
+      "id": "q19",
+      "question": "What rules apply to dictionary keys and values?",
+      "modality": "slide",
+      "reference_answer": "Keys must be unique and of an immutable (hashable) type such as int, float, string, tuple or bool; values can be any type, including lists or dictionaries, and can repeat; there is no order to keys or values.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 48
+        }
+      ]
+    },
+    {
+      "id": "q20",
+      "question": "How does lyrics_to_frequencies build the word-frequency dictionary?",
+      "modality": "figure",
+      "reference_answer": "It loops over the words; if the word is already a key it adds one to its count, otherwise it sets the count to 1; it then returns the dictionary.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 51
+        }
+      ]
+    },
+    {
+      "id": "q21",
+      "question": "What does most_common_words return?",
+      "modality": "figure",
+      "reference_answer": "It returns a tuple of a list of the words with the highest frequency and that highest frequency, found by taking the maximum of the dictionary's values and collecting the keys with that count.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 52
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 50
+        }
+      ]
+    },
+    {
+      "id": "q22",
+      "question": "How does words_often use the frequency dictionary?",
+      "modality": "figure",
+      "reference_answer": "It repeatedly calls most_common_words, appends the result while its frequency is at least minTimes, deletes those words from the dictionary, and stops when the highest frequency drops below minTimes.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 53
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 50
+        }
+      ]
+    },
+    {
+      "id": "q23",
+      "question": "Why is the naive recursive Fibonacci inefficient?",
+      "modality": "figure",
+      "reference_answer": "It recalculates the same values many times, as the fib(5) call tree shows with repeated fib(3), fib(2) and fib(1) calls; the fix is to keep track of values already calculated.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 55
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 54
+        }
+      ]
+    },
+    {
+      "id": "q24",
+      "question": "How many recursive calls do fib(34) and fib_efficient(34) make?",
+      "modality": "slide",
+      "reference_answer": "fib(34) makes 11,405,773 recursive calls while fib_efficient(34) makes 65; this only works for procedures without side effects.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 57
+        }
+      ]
+    },
+    {
+      "id": "q25",
+      "question": "Why is a function allowed to call itself according to the lecture?",
+      "modality": "video",
+      "reference_answer": "A function definition can call itself in its body as long as there is a base case that stops the unwinding of the problem.",
+      "gold": [
+        {
+          "source_type": "video",
+          "loc_num": 293
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 6
+        }
+      ]
+    },
+    {
+      "id": "q26",
+      "question": "How do the bindings of n change as a recursive factorial function is called repeatedly?",
+      "modality": "video",
+      "reference_answer": "Each recursive call gets its own scope with its own n, decreasing by one per call until n is 1; the results then return back up through the earlier scopes.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 11
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 12
+        },
+        {
+          "source_type": "video",
+          "loc_num": 739
+        }
+      ]
+    },
+    {
+      "id": "q27",
+      "question": "What makes an algorithm a divide-and-conquer algorithm?",
+      "modality": "slide",
+      "reference_answer": "It solves a hard problem by breaking it into subproblems that are easier than the original and whose solutions can be combined to solve the original.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 39
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 6
+        }
+      ]
+    },
+    {
+      "id": "q28",
+      "question": "Why use a dictionary instead of separate lists to store student information?",
+      "modality": "slide",
+      "reference_answer": "Separate lists must all have the same length, be indexed by integers and be updated together, which is messy; a dictionary indexes the item of interest directly in one data structure.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 42
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 43
+        }
+      ]
+    },
+    {
+      "id": "q29",
+      "question": "How is mathematical induction related to checking that recursive code works?",
+      "modality": "slide",
+      "reference_answer": "Show the base case returns the correct answer, then assume the function is correct for smaller problem sizes and show the recursive step is then correct for size b; by induction the code is correct.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 14
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 15
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 16
+        },
+        {
+          "source_type": "slide",
+          "loc_num": 17
+        }
+      ]
+    },
+    {
+      "id": "q30",
+      "question": "How does recursion compare with iteration?",
+      "modality": "slide",
+      "reference_answer": "Recursion may be simpler and more intuitive and may be efficient from the programmer's point of view, but it may not be efficient from the computer's point of view.",
+      "gold": [
+        {
+          "source_type": "slide",
+          "loc_num": 13
+        }
+      ]
     }
   ],
   "off_topic": [
-    {"id": "o01", "question": "What is the capital of France?"},
-    {"id": "o02", "question": "How do I train a neural network in PyTorch?"}
+    {
+      "id": "o01",
+      "question": "What is the capital of France?",
+      "kind": "unrelated"
+    },
+    {
+      "id": "o02",
+      "question": "Who won the 2018 football World Cup?",
+      "kind": "unrelated"
+    },
+    {
+      "id": "o03",
+      "question": "What is a good recipe for pasta carbonara?",
+      "kind": "unrelated"
+    },
+    {
+      "id": "o04",
+      "question": "How do I train a neural network in PyTorch?",
+      "kind": "unrelated"
+    },
+    {
+      "id": "o05",
+      "question": "How does the TCP three-way handshake work?",
+      "kind": "unrelated"
+    },
+    {
+      "id": "o06",
+      "question": "What is the time complexity of merge sort?",
+      "kind": "near_topic"
+    },
+    {
+      "id": "o07",
+      "question": "How does inheritance work with Python classes?",
+      "kind": "near_topic"
+    },
+    {
+      "id": "o08",
+      "question": "What is a lambda function in Python?",
+      "kind": "near_topic"
+    },
+    {
+      "id": "o09",
+      "question": "How do I read a CSV file in Python?",
+      "kind": "near_topic"
+    },
+    {
+      "id": "o10",
+      "question": "What is a Python decorator?",
+      "kind": "near_topic"
+    }
   ]
 }
