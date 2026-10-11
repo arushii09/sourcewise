@@ -1,0 +1,27 @@
+{
+  "in_scope": [
+    {
+      "id": "q01",
+      "question": "What is a base case in recursion?",
+      "reference_answer": "The base case is the simplest instance that is solved directly without another recursive call, so the recursion stops.",
+      "gold": [
+        {"source_type": "book", "loc_num": 66},
+        {"source_type": "video", "loc_num": 293}
+      ],
+      "modality": "text"
+    },
+    {
+      "id": "q02",
+      "question": "What are the base cases of the Fibonacci (Females) example on the slides?",
+      "reference_answer": "Females(0) = 1 and Females(1) = 1.",
+      "gold": [
+        {"source_type": "slide", "loc_num": 33}
+      ],
+      "modality": "slide"
+    }
+  ],
+  "off_topic": [
+    {"id": "o01", "question": "What is the capital of France?"},
+    {"id": "o02", "question": "How do I train a neural network in PyTorch?"}
+  ]
+}
