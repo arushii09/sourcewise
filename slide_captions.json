@@ -46,5 +46,15 @@
  "45": "The slide contains a two-column table illustrating a dictionary's key-value pairs. The left column, with a dark blue background, lists the keys ('Ana', 'Denise', 'John', 'Katy'), while the right column, with a reddish-brown background, lists their corresponding values ('B', 'A', 'A+', 'A'). Each row pairs a specific key with its associated value, visually representing the mapping structure of a dictionary.",
  "46": "The slide contains a two-column table diagram illustrating the key-value pairs of the `grades` dictionary. The left column (dark blue) lists the keys ('Ana', 'Denise', 'John', 'Katy', 'Sylvan'), and the right column (red) lists their corresponding values ('B', 'A', 'A+', 'A', 'A'). Each row pairs a student's name with their grade, visually representing the mapping structure of the dictionary shown in the code below it.",
  "47": "The slide features a two-column table in the upper right corner that visually represents the dictionary `grades`. The left column, shaded dark blue, lists the keys ('Ana', 'Denise', 'John', 'Katy'), while the right column, shaded reddish-brown, lists the corresponding values ('B', 'A', 'A+', 'A'). The rows align horizontally to show the key-value pairs, illustrating the mapping structure of the dictionary.",
- "48": "NONE"
+ "48": "NONE",
+ "49": "NONE",
+ "50": "NONE",
+ "51": "NONE",
+ "52": "NONE",
+ "53": "NONE",
+ "54": "NONE",
+ "55": "The slide displays a recursive call tree for `fib(5)`, showing how it branches into `fib(4)` and `fib(3)`, which further decompose into smaller calls down to the base cases `fib(2)` and `fib(1)`. Red circles highlight repeated subproblems like `fib(3)` and `fib(2)`, with an annotation stating \"already know these values\" to emphasize redundant calculations. A red box outlines the base case nodes (`fib(2)` and `fib(1)`), labeled \"base cases,\" visually contrasting them with the duplicated higher-level calls above.",
+ "56": "NONE",
+ "57": "NONE",
+ "58": "NONE"
 }

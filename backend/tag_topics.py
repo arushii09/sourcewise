@@ -1,6 +1,6 @@
 """Build the topic outline (topics, concepts, prerequisites) and tag every chunk.
 
-Run from the project root:  python backend\\tag_topics.py
+project root:  python backend\\tag_topics.py
 1) Builds topics.json from the ingested chunks (skipped if topics.json already exists).
 2) Pauses so you can read/edit topics.json.
 3) Tags every chunk in Chroma with topic + concepts.
@@ -18,14 +18,15 @@ from groq import Groq, RateLimitError
 
 load_dotenv()
 MODEL = os.getenv("MODEL_MAIN")
+COURSE_NAME = os.getenv("COURSE_NAME", "this course")
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 CACHE_FILE = "llm_cache.json"
 TOPICS_FILE = "topics.json"
-OUTLINE_BATCH = 20      # chunks per outline call
-OUTLINE_WORDS = 60      # words of each chunk shown in outline calls
-TAG_BATCH = 10          # chunks per tagging call
-TAG_WORDS = 120         # words of each chunk shown in tagging calls
+OUTLINE_BATCH = 20      
+OUTLINE_WORDS = 60
+TAG_BATCH = 10        
+TAG_WORDS = 120       
 
 cache = json.load(open(CACHE_FILE, encoding="utf-8")) if os.path.exists(CACHE_FILE) else {}
 
@@ -67,7 +68,7 @@ def build_outline(docs):
         batch = docs[i:i + OUTLINE_BATCH]
         excerpts = "\n".join(f"[{j}] {short(d, OUTLINE_WORDS)}" for j, d in enumerate(batch))
         out = llm_json(
-            "Below are excerpts from a lecture video, slides and a textbook about Python recursion "
+            f"Below are excerpts from a lecture video, slides and a textbook about {COURSE_NAME} recursion "
             "and dictionaries. List the distinct topics and key concepts that appear in them. "
             'Return JSON: {"topics":[{"name": str, "concepts": [str]}]}. '
             "Use only what the excerpts contain.\n\n" + excerpts)

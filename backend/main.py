@@ -15,6 +15,8 @@ from fastapi.responses import FileResponse, Response
 from groq import Groq
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
+from backend import learner
+from backend.quiz import router as quiz_router
 
 load_dotenv()
 MODEL = os.getenv("MODEL_MAIN")
@@ -23,22 +25,22 @@ BOOK_PDF = os.getenv("BOOK_PDF", "data/think_python.pdf")
 GATE_DIST = float(os.getenv("GATE_DIST", "0.45"))            
 TOP_K = 6
 EXCERPT_WORDS = 220
-
+COURSE_NAME = os.getenv("COURSE_NAME", "Python")
 embedder = SentenceTransformer("BAAI/bge-small-en-v1.5")
 col = chromadb.PersistentClient(path="chroma_db").get_collection("course")
 llm = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 app = FastAPI(title="Course tutor")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
+app.include_router(quiz_router)
 
-DECLINE = ("I can't answer that from the uploaded course material (MIT 6.0001 Lecture 6 and the Think Python "
-           "chapters on recursion and dictionaries). I don't mix in outside knowledge, so try a question "
-           "about those topics.")
+DECLINE = (f"I can't answer that from the uploaded course material ({COURSE_NAME}). I don't mix in "
+           "outside knowledge, so try a question about the uploaded topics.")
 
 
 class ChatIn(BaseModel):
     question: str
-
+    student: str | None = None
 
 def source_url(meta):
     kind, n = meta["source_type"], meta["loc_num"]
@@ -76,7 +78,7 @@ def chat(body: ChatIn):
         f"[{i}] ({m['location']}, {m['source_type']}) " + " ".join(d.split()[:EXCERPT_WORDS])
         for i, (d, m, _) in enumerate(hits, start=1))
     prompt = (
-        "You are a tutor for ONE course unit (Python recursion and dictionaries). Answer the student's "
+        f"You are a tutor for ONE course unit ({COURSE_NAME} recursion and dictionaries). Answer the student's "
         "question using ONLY the numbered excerpts below. Put the citation marker like [2] inside the answer text right after each claim. "
         "If the excerpts do not contain enough information to answer, set answerable to false. "
         "Never use outside knowledge. Keep the answer under 150 words.\n"
@@ -104,6 +106,10 @@ def chat(body: ChatIn):
                           "snippet": " ".join(d.split()[:40]), "url": source_url(m)})
     return {"answer": out["answer"], "grounded": True, "citations": citations,
             "debug": {"reason": "ok", "best_dist": best}}
+    if body.student:
+        tid = hits[used[0] - 1][1].get("topic")
+        if tid and tid != "none":
+            learner.nudge_from_chat(body.student, tid)
 
 
 @app.get("/media/slide/{n}")
@@ -133,4 +139,4 @@ def book_page(n: int):
 
 @app.get("/health")
 def health():
-    return {"ok": True, "chunks": col.count()}
+    return {"ok": True, "chunks": col.count(), "course": COURSE_NAME}

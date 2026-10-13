@@ -1,64 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { API, Citation, LearnerState, Nav, SourceChip, Viewer, useStudent } from "./shared";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-type Citation = {
-  n: number;
-  source_type: "slide" | "book" | "video";
-  location: string;
-  loc_num: number;
-  topic: string;
-  snippet: string;
-  url: string;
-};
 type Msg = { role: "user" | "assistant"; text: string; grounded?: boolean; citations?: Citation[] };
-
-const STARTERS = [
-  "What is a base case in recursion?",
-  "How does memoization speed up Fibonacci?",
-  "How do I loop over a dictionary's keys?",
-  "Explain the Towers of Hanoi solution",
-];
-
-const TYPE_STYLE: Record<Citation["source_type"], { label: string; cls: string }> = {
-  slide: { label: "Slide", cls: "bg-indigo-50 text-indigo-700 ring-indigo-200 hover:bg-indigo-100" },
-  book: { label: "Book", cls: "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100" },
-  video: { label: "Video", cls: "bg-rose-50 text-rose-700 ring-rose-200 hover:bg-rose-100" },
-};
-
-function place(c: Citation) {
-  if (c.source_type === "video") {
-    const m = Math.floor(c.loc_num / 60);
-    const s = String(c.loc_num % 60).padStart(2, "0");
-    return `${m}:${s}`;
-  }
-  if (c.source_type === "book") return `PDF page ${c.loc_num}`;
-  return c.location.replace(/^./, (ch) => ch.toUpperCase());
-}
-
-const mediaSrc = (c: Citation) => (c.url.startsWith("http") ? c.url : API + c.url);
-
-function youtubeLink(c: Citation) {
-  const u = new URL(c.url);
-  const id = u.pathname.split("/").pop();
-  return `https://www.youtube.com/watch?v=${id}&t=${u.searchParams.get("start") ?? 0}s`;
-}
-
-function SourceChip({ c, onOpen }: { c: Citation; onOpen: (c: Citation) => void }) {
-  const st = TYPE_STYLE[c.source_type];
-  return (
-    <button
-      onClick={() => onOpen(c)}
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition ${st.cls}`}
-      title={c.snippet}
-    >
-      <span className="opacity-60">[{c.n}]</span>
-      {st.label} · {place(c)}
-    </button>
-  );
-}
 
 function AnswerText({ text, citations, onOpen }: { text: string; citations: Citation[]; onOpen: (c: Citation) => void }) {
   const parts = text.split(/(\[\d+\])/g);
@@ -82,48 +27,30 @@ function AnswerText({ text, citations, onOpen }: { text: string; citations: Cita
   );
 }
 
-function Viewer({ c, onClose }: { c: Citation; onClose: () => void }) {
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [onClose]);
-  const st = TYPE_STYLE[c.source_type];
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4" onClick={onClose}>
-      <div className="max-h-full w-full max-w-4xl overflow-auto rounded-2xl bg-white p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${st.cls}`}>{st.label} · {place(c)}</span>
-            {c.topic && <span className="text-xs text-slate-500">Topic: {c.topic}</span>}
-          </div>
-          <div className="flex items-center gap-3">
-            {c.source_type === "video" && (
-              <a href={youtubeLink(c)} target="_blank" rel="noreferrer" className="text-xs font-medium text-indigo-600 hover:underline">
-                Open on YouTube
-              </a>
-            )}
-            <button onClick={onClose} className="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100">Close</button>
-          </div>
-        </div>
-        {c.source_type === "video" ? (
-          <iframe src={mediaSrc(c)} className="aspect-video w-full rounded-lg" allow="autoplay; encrypted-media" allowFullScreen />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={mediaSrc(c)} alt={`${st.label} ${place(c)}`} className="mx-auto max-h-[70vh] w-auto rounded-lg border border-slate-200" />
-        )}
-        <p className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">&ldquo;{c.snippet}&hellip;&rdquo;</p>
-      </div>
-    </div>
-  );
-}
-
 export default function Home() {
+  const [student, setStudent] = useStudent();
+  const [course, setCourse] = useState("");
+  const [starters, setStarters] = useState<string[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [viewer, setViewer] = useState<Citation | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch(`${API}/health`)
+      .then((r) => r.json())
+      .then((d) => setCourse(d.course ?? ""))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!student) return;
+    fetch(`${API}/learner/${student}`)
+      .then((r) => r.json())
+      .then((d: LearnerState) => setStarters(d.topics.slice(0, 4).map((t) => `Explain: ${t.name}`)))
+      .catch(() => {});
+  }, [student]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -139,7 +66,7 @@ export default function Home() {
       const r = await fetch(`${API}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, student }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
@@ -156,26 +83,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500" />
-            <span className="text-lg font-semibold tracking-tight">SourceWise</span>
-          </div>
-          <span className="hidden text-xs text-slate-500 sm:block">Grounded in MIT 6.0001 Lecture 6 + Think Python</span>
-        </div>
-      </header>
+      <Nav student={student} setStudent={setStudent} subtitle={course ? `Grounded in: ${course}` : undefined} />
 
-      <main className="mx-auto flex h-[calc(100vh-57px)] max-w-3xl flex-col px-4">
+      <main className="mx-auto flex h-[calc(100vh-65px)] max-w-3xl flex-col px-4">
         <div className="flex-1 space-y-5 overflow-y-auto py-6">
           {messages.length === 0 && (
             <div className="mt-10 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">Ask about recursion and dictionaries</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">Ask about your course material</h1>
               <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
                 Every answer cites the exact slide, book page or video moment. Questions the material doesn&apos;t cover are declined.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
-                {STARTERS.map((s) => (
+                {starters.map((s) => (
                   <button key={s} onClick={() => send(s)} className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700">
                     {s}
                   </button>
