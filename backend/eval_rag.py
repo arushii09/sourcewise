@@ -20,6 +20,7 @@ CAVEAT printed in the report: gold lists are hand-verified but not exhaustive, s
 lower bound; the RAGAS judge is an LLM and is noisy, especially on small samples.
 """
 import argparse
+import asyncio
 import json
 import math
 import os
@@ -90,7 +91,7 @@ def pct(x):
 
 
 def build_ragas(app):
-    from openai import OpenAI
+    from openai import AsyncOpenAI
     from ragas.embeddings import BaseRagasEmbedding
     from ragas.llms import llm_factory
     from ragas.metrics.collections import AnswerRelevancy, ContextPrecision, ContextRecall, Faithfulness
@@ -98,7 +99,8 @@ def build_ragas(app):
     judge = os.getenv("MODEL_JUDGE") or os.getenv("MODEL_VERIFY") or os.getenv("MODEL_MAIN")
     print(f"RAGAS judge model: {judge}  (generator: {os.getenv('MODEL_MAIN')})"
           + ("  [same model judges its own answers: note this bias in your report]" if judge == os.getenv("MODEL_MAIN") else ""))
-    client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key=os.getenv("GROQ_API_KEY"), max_retries=6)  # honours Groq retry-after on 429
+    client = AsyncOpenAI(base_url=os.getenv("JUDGE_BASE_URL", "https://api.groq.com/openai/v1"),
+                         api_key=os.getenv("GROQ_API_KEY"), max_retries=6)   # honours Groq retry-after on 429
     llm = llm_factory(judge, provider="openai", client=client, temperature=0, max_tokens=3000)
 
     class LocalEmbeddings(BaseRagasEmbedding):
@@ -116,24 +118,54 @@ def build_ragas(app):
     }, judge
 
 
-def score(rcache, key, fn):
+async def ascore(rcache, key, make):
     """Run one RAGAS metric with retries; failures stay None so a rerun retries them."""
     if rcache.get(key) is not None:
-        return rcache[key]
-    for attempt in range(4):
+        return rcache[key], ""
+    last = ""
+    for _ in range(4):
         try:
-            v = float(fn().value)
+            v = float((await make()).value)
             if math.isnan(v):
                 raise ValueError("nan score")
             rcache[key] = v
             save_json(RAGAS_CACHE, rcache)
-            return v
+            return v, ""
         except Exception as e:  # rate limit, bad structured output, ...
-            msg = str(e)
-            print(f"   {key}: {msg[:90]}")
-            time.sleep(20 if ("429" in msg or "rate" in msg.lower()) else 3)
+            last = str(e)
+            print(f"   {key.split('|')[-1]}: {last[:100]}")
+            await asyncio.sleep(20 if ("429" in last or "rate" in last.lower()) else 3)
     rcache[key] = None
-    return None
+    return None, last
+
+
+async def run_ragas(metrics, sample, tag, rcache):
+    per = {k: [] for k in metrics}
+    errors, scored_any = [], False
+    for i, x in enumerate(sample, 1):
+        it, r = x["item"], x["res"]
+        ctx = [h["text"] for h in r["retrieved"]]
+        print(f" RAGAS {i}/{len(sample)} {it['id']}")
+        base = f"{it['id']}|{tag}"
+        jobs = [("context_precision", "cp", lambda: metrics["context_precision"].ascore(
+                    user_input=it["question"], reference=it["reference_answer"], retrieved_contexts=ctx)),
+                ("context_recall", "cr", lambda: metrics["context_recall"].ascore(
+                    user_input=it["question"], retrieved_contexts=ctx, reference=it["reference_answer"]))]
+        if r["grounded"]:
+            jobs += [("faithfulness", "f", lambda: metrics["faithfulness"].ascore(
+                        user_input=it["question"], response=r["answer"], retrieved_contexts=ctx)),
+                     ("answer_relevancy", "ar", lambda: metrics["answer_relevancy"].ascore(
+                        user_input=it["question"], response=r["answer"]))]
+        for name, short, make in jobs:
+            v, err = await ascore(rcache, f"{base}|{short}", make)
+            per[name].append(v)
+            scored_any = scored_any or v is not None
+            if err:
+                errors.append(err)
+        if i >= 2 and not scored_any:        # fail fast instead of burning quota on a broken judge
+            print("\nStopping RAGAS: the first questions produced no scores at all.\nLast error: " + (errors[-1] if errors else "?")[:300])
+            break
+    return per
 
 
 def main():
@@ -210,23 +242,9 @@ def main():
             if args.ragas_limit:
                 random.Random(0).shuffle(sample)
                 sample = sample[:args.ragas_limit]
-            per = {k: [] for k in metrics}
-            for i, x in enumerate(sample, 1):
-                it, r = x["item"], x["res"]
-                ctx = [h["text"] for h in r["retrieved"]]
-                print(f" RAGAS {i}/{len(sample)} {it['id']}")
-                base = f"{it['id']}|{tag}"
-                per["context_precision"].append(score(rcache, f"{base}|cp", lambda: metrics["context_precision"].score(
-                    user_input=it["question"], reference=it["reference_answer"], retrieved_contexts=ctx)))
-                per["context_recall"].append(score(rcache, f"{base}|cr", lambda: metrics["context_recall"].score(
-                    user_input=it["question"], retrieved_contexts=ctx, reference=it["reference_answer"])))
-                if r["grounded"]:
-                    per["faithfulness"].append(score(rcache, f"{base}|f", lambda: metrics["faithfulness"].score(
-                        user_input=it["question"], response=r["answer"], retrieved_contexts=ctx)))
-                    per["answer_relevancy"].append(score(rcache, f"{base}|ar", lambda: metrics["answer_relevancy"].score(
-                        user_input=it["question"], response=r["answer"])))
+            per = asyncio.run(run_ragas(metrics, sample, tag, rcache))
             for k, v in per.items():
-                ok = [s for s in v if s is not None]
+                ok = [x for x in v if x is not None]
                 ragas_scores[k] = {"mean": mean(ok), "n_scored": len(ok), "n_failed": len(v) - len(ok)}
             ragas_scores["judge_model"] = judge
 

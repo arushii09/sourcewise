@@ -17,6 +17,15 @@ Test set: 30 in-scope questions with hand-verified gold locations, 10 off-materi
 | Retrieval hit@6, text questions | 100.0% |
 | Retrieval hit@6, video questions | 100.0% |
 
+RAGAS (judge `qwen/qwen3.8-27b`):
+
+| RAGAS metric | Mean | Scored | Failed |
+| --- | --- | --- | --- |
+| faithfulness | 0.946 | 12 | 3 |
+| answer_relevancy | 0.912 | 13 | 2 |
+| context_precision | 0.784 | 13 | 2 |
+| context_recall | 0.917 | 12 | 3 |
+
 ### Failure cases (2 of 30 in-scope questions)
 
 - q18 (gold source not retrieved): What do keys() and values() give you for a dictionary?  | gold: slide 47 | cited: slide 48

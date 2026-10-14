@@ -18,7 +18,29 @@
    "video": 1
   }
  },
- "ragas": {},
+ "ragas": {
+  "faithfulness": {
+   "mean": 0.9464285714285714,
+   "n_scored": 12,
+   "n_failed": 3
+  },
+  "answer_relevancy": {
+   "mean": 0.9115276085832572,
+   "n_scored": 13,
+   "n_failed": 2
+  },
+  "context_precision": {
+   "mean": 0.7844444444152826,
+   "n_scored": 13,
+   "n_failed": 2
+  },
+  "context_recall": {
+   "mean": 0.9166666666666666,
+   "n_scored": 12,
+   "n_failed": 3
+  },
+  "judge_model": "qwen/qwen3.8-27b"
+ },
  "per_question": [
   {
    "id": "q01",
