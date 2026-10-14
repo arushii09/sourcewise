@@ -17,6 +17,7 @@ const NAV_LINKS = [
   { href: "/", label: "Tutor chat" },
   { href: "/quiz", label: "Quiz" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/sources", label: "Sources" },
 ];
 
 function HeaderNav({

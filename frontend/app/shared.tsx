@@ -135,6 +135,7 @@ const LINKS = [
   { href: "/", label: "Tutor chat" },
   { href: "/quiz", label: "Quiz" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/sources", label: "Sources" },
 ];
 
 export function Nav({ student, setStudent, subtitle }: { student: string; setStudent: (s: string) => void; subtitle?: string }) {

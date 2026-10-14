@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse, Response
 from groq import Groq
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
-from backend import learner
+from backend import learner, upload
 from backend.quiz import router as quiz_router
 
 load_dotenv()
@@ -33,7 +33,8 @@ llm = Groq(api_key=os.getenv("GROQ_API_KEY"))
 app = FastAPI(title="Course tutor")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(quiz_router)
-
+upload.configure(embedder, col)
+app.include_router(upload.router)
 DECLINE = (f"I can't answer that from the uploaded course material ({COURSE_NAME}). I don't mix in "
            "outside knowledge, so try a question about the uploaded topics.")
 
@@ -42,6 +43,7 @@ class ChatIn(BaseModel):
     question: str
     student: str | None = None
 
+'''
 def source_url(meta):
     kind, n = meta["source_type"], meta["loc_num"]
     if kind == "video":
@@ -49,7 +51,16 @@ def source_url(meta):
     if kind == "slide":
         return f"/media/slide/{n}"
     return f"/media/book/{n}"
-
+'''
+def source_url(meta):
+    kind, n = meta["source_type"], meta["loc_num"]
+    if meta.get("doc_id") and kind != "video":
+        return f"/media/doc/{meta['doc_id']}/{n}"
+    if kind == "video":
+        return f"https://www.youtube.com/embed/{meta['source_name']}?start={n}&autoplay=1"
+    if kind == "slide":
+        return f"/media/slide/{n}"
+    return f"/media/book/{n}"
 
 def retrieve(question):
     res = col.query(query_embeddings=embedder.encode([question], normalize_embeddings=True).tolist(),
@@ -78,7 +89,8 @@ def chat(body: ChatIn):
         f"[{i}] ({m['location']}, {m['source_type']}) " + " ".join(d.split()[:EXCERPT_WORDS])
         for i, (d, m, _) in enumerate(hits, start=1))
     prompt = (
-        f"You are a tutor for ONE course unit ({COURSE_NAME} recursion and dictionaries). Answer the student's "
+        #f"You are a tutor for ONE course unit ({COURSE_NAME} recursion and dictionaries). Answer the student's "
+        f"You are a tutor for the uploaded course material ({COURSE_NAME}). Answer the student's "
         "question using ONLY the numbered excerpts below. Put the citation marker like [2] inside the answer text right after each claim. "
         "If the excerpts do not contain enough information to answer, set answerable to false. "
         "Never use outside knowledge. Keep the answer under 150 words.\n"
@@ -104,13 +116,22 @@ def chat(body: ChatIn):
         citations.append({"n": n, "source_type": m["source_type"], "location": m["location"],
                           "loc_num": m["loc_num"], "topic": m.get("topic_name", ""),
                           "snippet": " ".join(d.split()[:40]), "url": source_url(m)})
+
+        '''
     return {"answer": out["answer"], "grounded": True, "citations": citations,
             "debug": {"reason": "ok", "best_dist": best}}
     if body.student:
         tid = hits[used[0] - 1][1].get("topic")
         if tid and tid != "none":
             learner.nudge_from_chat(body.student, tid)
-
+'''
+    resp = {"answer": out["answer"], "grounded": True, "citations": citations,
+            "debug": {"reason": "ok", "best_dist": best}}
+    if body.student:
+        tid = hits[used[0] - 1][1].get("topic")
+        if tid and tid != "none":
+            learner.nudge_from_chat(body.student, tid)
+    return resp
 
 @app.get("/media/slide/{n}")
 def slide_image(n: int):

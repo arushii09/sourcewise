@@ -62,7 +62,7 @@ def _get(snip, key):
     # Works whether the library returns objects or dicts.
     return getattr(snip, key) if hasattr(snip, key) else snip[key]
 
-
+'''
 def video_chunks():
     snippets = YouTubeTranscriptApi().fetch(VIDEO_ID)
     out, buf, start = [], [], None
@@ -70,6 +70,15 @@ def video_chunks():
     def flush():
         if buf:
             out.append({"text": " ".join(buf), "source_type": "video", "source_name": VIDEO_ID,
+                        "location": f"t={int(start)}s", "loc_num": int(start)})
+'''
+
+def video_chunks(video_id=VIDEO_ID):
+    snippets = YouTubeTranscriptApi().fetch(video_id)
+    out, buf, start = [], [], None
+    def flush():
+        if buf:
+            out.append({"text": " ".join(buf), "source_type": "video", "source_name": video_id,
                         "location": f"t={int(start)}s", "loc_num": int(start)})
 
     for s in snippets:
