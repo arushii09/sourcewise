@@ -103,8 +103,14 @@ export default function QuizPage() {
 
   const loadState = useCallback(() => {
     if (!student) return;
-    api<LearnerState>(`/learner/${student}`).then(setState).catch((e: Error) => setError(e.message));
-  }, [student]);
+    const courseParam = selectedCourseId ? `?course=${encodeURIComponent(selectedCourseId)}` : "";
+    api<LearnerState>(`/learner/${student}${courseParam}`)
+      .then((s) => {
+        setState(s);
+        setSelected((prev) => prev.filter((p) => s.topics.some((t) => t.topic === p)));
+      })
+      .catch((e: Error) => setError(e.message));
+  }, [student, selectedCourseId]);
 
   useEffect(() => {
     if (phase === "setup") loadState();
@@ -126,6 +132,7 @@ export default function QuizPage() {
   // When course changes, reset quiz questions so cross-course questions are never reused
   const handleCourseChange = (newCourseId: string) => {
     setSelectedCourseId(newCourseId);
+    setSelected([]);
     if (phase !== "setup") {
       setPhase("setup");
       setQuestions([]);
@@ -280,7 +287,8 @@ export default function QuizPage() {
                 </p>
                 <button
                   onClick={() => start(true)}
-                  className="mt-3.5 inline-block cursor-pointer rounded-xl bg-[#E11D48] px-4.5 py-2 text-sm font-semibold text-white shadow-xs transition hover:bg-[#F43F5E] active:scale-[0.98]"
+                  disabled={!state || (activeCourseChunks === 0 && selectedCourseId !== "all")}
+                  className="mt-3.5 inline-block cursor-pointer rounded-xl bg-[#E11D48] px-4.5 py-2 text-sm font-semibold text-white shadow-xs transition hover:bg-[#F43F5E] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Take the diagnostic ({state.topics.length} questions)
                 </button>
@@ -357,7 +365,7 @@ export default function QuizPage() {
             <div className="mt-8 flex flex-wrap gap-3 border-t border-[#F3D2DC] pt-6">
               <button
                 onClick={() => start(false)}
-                disabled={!state}
+                disabled={!state || (activeCourseChunks === 0 && selectedCourseId !== "all")}
                 className="cursor-pointer rounded-xl bg-[#E11D48] px-6 py-2.5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:bg-[#F43F5E] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Start quiz

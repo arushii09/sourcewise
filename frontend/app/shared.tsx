@@ -17,11 +17,20 @@ export type Citation = {
 };
 export type Topic = { topic: string; name: string; concepts?: string[]; p: number; n: number };
 export type Recommended = { topic: string; name: string; reason: string };
+export type CourseStats = {
+  answers_graded: number;
+  correct_answers: number;
+  quizzes_completed: number;
+  average_score: number;
+};
+
 export type LearnerState = {
   student: string;
+  course?: string | null;
   topics: Topic[];
   recommended: Recommended;
   history: { topic: string; p: number; source: string; ts: number }[];
+  stats?: CourseStats;
 };
 
 export const TYPE_STYLE: Record<Citation["source_type"], { label: string; cls: string }> = {
