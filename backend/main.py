@@ -42,6 +42,7 @@ DECLINE = (f"I can't answer that from the uploaded course material ({COURSE_NAME
 class ChatIn(BaseModel):
     question: str
     student: str | None = None
+    course: str | None = None
 
 '''
 def source_url(meta):
@@ -62,14 +63,22 @@ def source_url(meta):
         return f"/media/slide/{n}"
     return f"/media/book/{n}"
 
-def retrieve(question):
+def retrieve(question, course_id=None):
+    where = None
+    if course_id and course_id != "all":
+        where = {"course_id": course_id}
     res = col.query(query_embeddings=embedder.encode([question], normalize_embeddings=True).tolist(),
-                    n_results=TOP_K)
+                    n_results=TOP_K,
+                    where=where)
+    if not res["documents"] or not res["documents"][0]:
+        return []
     return list(zip(res["documents"][0], res["metadatas"][0], res["distances"][0]))
 
 
-def decline(best=None, reason="not_covered"):
-    return {"answer": DECLINE, "grounded": False, "citations": [],
+def decline(best=None, reason="not_covered", course_name=COURSE_NAME):
+    msg = (f"I can't answer that from the uploaded course material ({course_name}). I don't mix in "
+           "outside knowledge, so try a question about the uploaded topics.")
+    return {"answer": msg, "grounded": False, "citations": [],
             "debug": {"reason": reason, "best_dist": best}}
 
 
@@ -78,19 +87,19 @@ def chat(body: ChatIn):
     question = body.question.strip()
     if not question:
         raise HTTPException(400, "Empty question")
-    hits = retrieve(question)
+    course_name = upload.courses.get_course_name(body.course) if body.course else COURSE_NAME
+    hits = retrieve(question, course_id=body.course)
     best = round(hits[0][2], 3) if hits else None
 
     # Gate 1: retrieval similarity
     if not hits or hits[0][2] > GATE_DIST:
-        return decline(best, "low_similarity")
+        return decline(best, "low_similarity", course_name=course_name)
 
     excerpts = "\n\n".join(
         f"[{i}] ({m['location']}, {m['source_type']}) " + " ".join(d.split()[:EXCERPT_WORDS])
         for i, (d, m, _) in enumerate(hits, start=1))
     prompt = (
-        #f"You are a tutor for ONE course unit ({COURSE_NAME} recursion and dictionaries). Answer the student's "
-        f"You are a tutor for the uploaded course material ({COURSE_NAME}). Answer the student's "
+        f"You are a tutor for the uploaded course material ({course_name}). Answer the student's "
         "question using ONLY the numbered excerpts below. Put the citation marker like [2] inside the answer text right after each claim. "
         "If the excerpts do not contain enough information to answer, set answerable to false. "
         "Never use outside knowledge. Keep the answer under 150 words.\n"
@@ -108,7 +117,7 @@ def chat(body: ChatIn):
     # Gate 2: the model must say the excerpts support the answer, with valid citations
     used = [n for n in out.get("used", []) if isinstance(n, int) and 1 <= n <= len(hits)]
     if not out.get("answerable") or not used:
-        return decline(best, "model_declined")
+        return decline(best, "model_declined", course_name=course_name)
 
     citations = []
     for n in sorted(set(used)):
@@ -117,14 +126,6 @@ def chat(body: ChatIn):
                           "loc_num": m["loc_num"], "topic": m.get("topic_name", ""),
                           "snippet": " ".join(d.split()[:40]), "url": source_url(m)})
 
-        '''
-    return {"answer": out["answer"], "grounded": True, "citations": citations,
-            "debug": {"reason": "ok", "best_dist": best}}
-    if body.student:
-        tid = hits[used[0] - 1][1].get("topic")
-        if tid and tid != "none":
-            learner.nudge_from_chat(body.student, tid)
-'''
     resp = {"answer": out["answer"], "grounded": True, "citations": citations,
             "debug": {"reason": "ok", "best_dist": best}}
     if body.student:

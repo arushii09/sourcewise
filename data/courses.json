@@ -1,0 +1,20 @@
+[
+  {
+    "id": "default",
+    "name": "MIT 6.0001: Introduction to Computer Science",
+    "description": "Core course materials (Python, Recursion, Dictionaries)",
+    "created": 1791986845.9423485
+  },
+  {
+    "id": "course-data-structures-and-algo-d272d4",
+    "name": "Data Structures and Algorithms",
+    "description": "Trees, Graphs, and DP",
+    "created": 1791987358.3225808
+  },
+  {
+    "id": "course-machine-learning-ai-ee4bbe",
+    "name": "Machine Learning & AI",
+    "description": "Neural Networks, Gradient Descent",
+    "created": 1791987692.4704807
+  }
+]

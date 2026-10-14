@@ -24,7 +24,7 @@ from groq import APIStatusError, Groq, RateLimitError
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
-from backend import learner
+from backend import courses, learner
 
 load_dotenv()
 MODEL = os.getenv("MODEL_MAIN")
@@ -134,9 +134,11 @@ def used_chunk_ids(student):
         return {r["chunk_id"] for r in c.execute("SELECT chunk_id FROM questions WHERE student=?", (student,))}
 
 
-def pick_chunks(topic_id, exclude, session):
+def pick_chunks(topic_id, exclude, session, course=None):
     got = col.get(where={"topic": topic_id}, include=["documents", "metadatas"])
     items = [(i, d, m) for i, d, m in zip(got["ids"], got["documents"], got["metadatas"]) if len(d.split()) >= 25]
+    if course and course != "all":
+        items = [x for x in items if (x[2].get("course_id") or "default") == course]
     items = [x for x in items if not EXERCISE.search(x[1])] or items
     if not items:
         return None
@@ -265,11 +267,11 @@ def save_if_new(row, emb):
     return True
 
 
-def make_question(student, session, topic_id, qtype, difficulty):
+def make_question(student, session, topic_id, qtype, difficulty, course=None):
     names = {t["id"]: t["name"] for t in learner.load_topics()}
     exclude = used_chunk_ids(student)
     for _ in range(MAX_TRIES):
-        chunks = pick_chunks(topic_id, exclude, session)
+        chunks = pick_chunks(topic_id, exclude, session, course=course)
         if not chunks:
             return None
         try:
@@ -302,7 +304,7 @@ def make_question(student, session, topic_id, qtype, difficulty):
             out["options"] = draft["options"]
         return out
     if qtype != "mcq":                              # e.g. no numeric question fits this topic
-        return make_question(student, session, topic_id, "mcq", difficulty)
+        return make_question(student, session, topic_id, "mcq", difficulty, course=course)
     return None
 
 
@@ -313,6 +315,7 @@ class StartIn(BaseModel):
     n: int = 5
     types: list[str] = ["mcq", "short", "numerical"]
     diagnostic: bool = False
+    course: str | None = None
 
 
 @router.post("/quiz/start")
@@ -336,13 +339,15 @@ def quiz_start(body: StartIn):
             t = random.choices(scope, weights=[1.05 - mastery.get(x, 0.3) for x in scope])[0]  # favour weak topics
             plan.append((t, types[i % len(types)], difficulty_for(mastery.get(t, 0.3))))
     session = uuid.uuid4().hex[:10]
+    course_scope = body.course if body.course and body.course != "all" else None
     with ThreadPoolExecutor(WORKERS) as ex:
-        results = list(ex.map(lambda p: make_question(student, session, *p), plan))
+        results = list(ex.map(lambda p: make_question(student, session, *p, course=course_scope), plan))
     questions = [q for q in results if q]
     if not questions:
-        raise HTTPException(503, "Could not generate verified questions. Try again in a moment.")
+        c_name = courses.get_course_name(course_scope) if course_scope else "this course"
+        raise HTTPException(400, f"No questions could be generated from {c_name}. Please check that materials are indexed for this course, or select All Courses.")
     return {"session": session, "requested": len(plan), "generated": len(questions),
-            "diagnostic": body.diagnostic, "questions": questions}
+            "diagnostic": body.diagnostic, "questions": questions, "course": course_scope}
 
 
 class AnswerIn(BaseModel):
