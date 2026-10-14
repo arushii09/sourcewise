@@ -1,0 +1,759 @@
+{
+ "summary": {
+  "n_in_scope": 30,
+  "n_off_topic": 10,
+  "retrieval_hit_at_k": 0.9666666666666667,
+  "retrieval_mrr": 0.7622222222222222,
+  "answer_rate_in_scope": 1.0,
+  "false_refusal_rate": 0.0,
+  "citation_hit_rate": 0.9333333333333333,
+  "citation_precision": 0.5694444444444444,
+  "refusal_accuracy_all": 1,
+  "refusal_accuracy_unrelated": 1,
+  "refusal_accuracy_near_topic": 1,
+  "by_modality_hit_at_k": {
+   "figure": 1,
+   "slide": 0.9166666666666666,
+   "text": 1,
+   "video": 1
+  }
+ },
+ "ragas": {},
+ "per_question": [
+  {
+   "id": "q01",
+   "question": "What is a base case in recursion?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.25,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "A base case is the condition that stops a recursive process by providing a simple situation that can be solved directly without further recursive calls, preventing infinite recursion. It is the point where the function returns a result instead of calling itself again, such as when n\u202f=\u202f0 or n\u202f=\u202f1 in typical examples.[4][5]",
+   "best_dist": 0.179,
+   "reason": "ok",
+   "cites": [
+    "video 293",
+    "book 66"
+   ],
+   "gold": [
+    "book 66",
+    "slide 6",
+    "video 293"
+   ]
+  },
+  {
+   "id": "q02",
+   "question": "What happens when a recursive function never reaches a base case?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "If a recursion never reaches a base case, it keeps calling itself forever, so the program never terminates; this situation is called infinite recursion and is generally not a good idea [1]. To avoid that, we must include at least one base case that stops the unwinding of the problem [2].",
+   "best_dist": 0.195,
+   "reason": "ok",
+   "cites": [
+    "book 66",
+    "video 293"
+   ],
+   "gold": [
+    "book 66",
+    "book 67",
+    "slide 6"
+   ]
+  },
+  {
+   "id": "q03",
+   "question": "What does a stack diagram show for a recursive function?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "A stack diagram visualizes each activation record (frame) that Python creates when the recursive function is called, showing the local variables and parameter values for every pending call on the call stack [1]. It also highlights the base\u2011case frame at the bottom, where no further recursive call is made, indicating where recursion stops [4].",
+   "best_dist": 0.163,
+   "reason": "ok",
+   "cites": [
+    "book 66",
+    "book 66"
+   ],
+   "gold": [
+    "book 66"
+   ]
+  },
+  {
+   "id": "q04",
+   "question": "What is a frame, and can several exist at the same time during recursion?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "A frame is the activation record for a single recursive call, holding its own local variables (e.g., the current value of n). Each call pushes a new frame onto the call stack, so multiple frames can exist simultaneously\u2014one for each pending call\u2014until the base case is reached and the stack unwinds. [1][5]",
+   "best_dist": 0.177,
+   "reason": "ok",
+   "cites": [
+    "book 66",
+    "video 790"
+   ],
+   "gold": [
+    "book 66",
+    "slide 11",
+    "slide 12"
+   ]
+  },
+  {
+   "id": "q05",
+   "question": "In the stack diagram for countdown(3), what are the values of n in the frames?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "The stack diagram for countdown(3) shows four frames with n values decreasing from the initial call: n=3, then n=2, then n=1, and finally the base\u2011case frame n=0.[1][2]",
+   "best_dist": 0.187,
+   "reason": "ok",
+   "cites": [
+    "book 66",
+    "book 66"
+   ],
+   "gold": [
+    "book 66"
+   ]
+  },
+  {
+   "id": "q06",
+   "question": "How is a dictionary different from a list?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.5,
+   "cite_precision": 0.25,
+   "cite_hit": true,
+   "answer": "A list stores items in a fixed order and you retrieve them by integer indices [2][4]. In contrast, a dictionary maps unique, immutable keys to values; the keys can be strings, numbers, tuples, etc., and the collection has no guaranteed order [5][1]. Values in a dictionary can be any type, including other dictionaries or lists, and duplicate values are allowed, whereas list elements are accessed only by position [5]. Thus the primary differences are the indexing method (integer vs arbitrary key), ordering guarantees, and key uniqueness requirements.",
+   "best_dist": 0.181,
+   "reason": "ok",
+   "cites": [
+    "video 2360",
+    "slide 49",
+    "video 2117",
+    "slide 48"
+   ],
+   "gold": [
+    "book 125",
+    "book 126",
+    "slide 49"
+   ]
+  },
+  {
+   "id": "q07",
+   "question": "How can a dictionary be used to count how often each letter appears in a string?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "Create an empty dictionary, then walk through the string character by character. For each character, check if it is already a key; if not, add it with a count of\u202f1, otherwise increment its existing count. This lets you build a histogram without knowing the letters in advance, using the dictionary\u2019s fast key lookup and dynamic insertion.[1][3]",
+   "best_dist": 0.194,
+   "reason": "ok",
+   "cites": [
+    "book 127",
+    "book 126"
+   ],
+   "gold": [
+    "book 127",
+    "slide 51"
+   ]
+  },
+  {
+   "id": "q08",
+   "question": "What is a reverse lookup in a dictionary and why is it slow?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.25,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "A reverse lookup is when you have a value and need to find the key(s) that map to it, i.e., searching the dictionary for a given value instead of using the key directly [4]. It is slow because it requires scanning through the dictionary\u2019s items (typically a loop) to compare each value, which takes time proportional to the size of the dictionary, unlike the constant\u2011time forward lookup [1].",
+   "best_dist": 0.21,
+   "reason": "ok",
+   "cites": [
+    "book 129",
+    "book 128"
+   ],
+   "gold": [
+    "book 128"
+   ]
+  },
+  {
+   "id": "q09",
+   "question": "What is a memo and how does it speed up the fibonacci function?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.6666666666666666,
+   "cite_hit": true,
+   "answer": "A memo is a previously computed value stored in a dictionary for later reuse [1]. By checking the dictionary first (if n in d) and returning the stored result, the function avoids recomputing the same sub\u2011problems [2][4]. This eliminates the exponential number of repeated recursive calls shown in the naive call graph, reducing the runtime to linear in n.",
+   "best_dist": 0.17,
+   "reason": "ok",
+   "cites": [
+    "book 131",
+    "slide 56",
+    "video 2804"
+   ],
+   "gold": [
+    "book 131",
+    "book 132",
+    "slide 55",
+    "slide 56"
+   ]
+  },
+  {
+   "id": "q10",
+   "question": "Why can't a list be used as a dictionary key?",
+   "modality": "text",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.3333333333333333,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "A dictionary key must be immutable and hashable; mutable objects like lists can change, so they are not hashable and cannot be used as keys[1][3].",
+   "best_dist": 0.214,
+   "reason": "ok",
+   "cites": [
+    "video 2360",
+    "slide 48"
+   ],
+   "gold": [
+    "book 130",
+    "slide 48"
+   ]
+  },
+  {
+   "id": "q11",
+   "question": "What are the base cases and the recursive case in the Fibonacci (Females) example?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "The base cases are Females(0)=1 and Females(1)=1, and the recursive case is Females(n)=Females(n-1)+Females(n-2) [1]. The implementation checks if the argument is 0 or 1 and returns 1, otherwise it returns the sum of the two previous recursive calls [2].",
+   "best_dist": 0.055,
+   "reason": "ok",
+   "cites": [
+    "slide 33",
+    "video 1615"
+   ],
+   "gold": [
+    "slide 32",
+    "slide 33",
+    "video 1615"
+   ]
+  },
+  {
+   "id": "q12",
+   "question": "How does the recursive multiplication example reduce a*b to a smaller problem?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "The example rewrites a*b as a\u202f+\u202fa*(b\u20111). The recursive step calls\u202fmult(a,\u202fb\u20111), which is the same multiplication problem but with the second factor reduced by one, and the base case stops when\u202fb\u202f==\u202f1, returning\u202fa. By repeatedly decreasing\u202fb, each call works on a smaller instance until the simple case is reached, producing the full product.",
+   "best_dist": 0.136,
+   "reason": "ok",
+   "cites": [
+    "slide 9",
+    "slide 9"
+   ],
+   "gold": [
+    "slide 9",
+    "video 543"
+   ]
+  },
+  {
+   "id": "q13",
+   "question": "What are the base case and the recursive step for computing a factorial?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "The base case is when\u202fn\u202f=\u202f1, where the function returns\u202f1\u202f[3][4]. The recursive step computes\u202fn\u202f\u00d7\u202ffactorial(n\u20111)\u202fand returns that value\u202f[3][4].",
+   "best_dist": 0.169,
+   "reason": "ok",
+   "cites": [
+    "slide 10",
+    "video 543"
+   ],
+   "gold": [
+    "slide 10",
+    "slide 13"
+   ]
+  },
+  {
+   "id": "q14",
+   "question": "What observations does the lecture make about scopes during recursive calls?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.3333333333333333,
+   "cite_hit": true,
+   "answer": "The lecture notes that each recursive call creates its own separate scope (or frame) so that the variable bindings in one call are isolated from others[2][3][6].  Because the bindings are not changed by the recursive call, there is no confusion about which value of a variable such as\u202fn is being used[3][6].  When a call returns, control flows back to the previous scope, restoring the earlier environment[2].",
+   "best_dist": 0.136,
+   "reason": "ok",
+   "cites": [
+    "slide 12",
+    "video 838",
+    "video 790"
+   ],
+   "gold": [
+    "slide 11",
+    "slide 12"
+   ]
+  },
+  {
+   "id": "q15",
+   "question": "How does the Towers of Hanoi solution move a stack of n discs?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.3333333333333333,
+   "cite_hit": true,
+   "answer": "The recursive solution moves a tower of n discs by first moving the top n\u20111 discs to the spare peg, then moving the bottom disc to the target peg, and finally moving the n\u20111 discs from the spare peg onto the target peg. The base case is a single disc, which is moved directly. This approach follows the recursive pattern of solving a smaller problem, handling the basic case, then solving the smaller problem again [4][6][1].",
+   "best_dist": 0.193,
+   "reason": "ok",
+   "cites": [
+    "slide 19",
+    "video 1321",
+    "video 1369"
+   ],
+   "gold": [
+    "slide 19",
+    "slide 20",
+    "video 1418"
+   ]
+  },
+  {
+   "id": "q16",
+   "question": "How does the recursive palindrome check shrink the problem?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.5,
+   "cite_precision": 0.3333333333333333,
+   "cite_hit": true,
+   "answer": "The recursive palindrome check reduces the problem by slicing off the outer characters. If the string length is 0 or 1 it is a base case and returns true [2]. Otherwise it compares the first and last characters; when they match it calls itself on the middle substring, effectively removing those two characters and shrinking the problem size [1][3].",
+   "best_dist": 0.171,
+   "reason": "ok",
+   "cites": [
+    "video 1817",
+    "slide 36",
+    "video 1921"
+   ],
+   "gold": [
+    "slide 36",
+    "slide 37",
+    "slide 38"
+   ]
+  },
+  {
+   "id": "q17",
+   "question": "How do you test whether a key is in a dictionary, and what happens when you look up a missing key?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.3333333333333333,
+   "cite_hit": true,
+   "answer": "You test a key with the\u202fin\u202foperator, e.g.,\u202f'John' in grades\u202freturns\u202fTrue\u202fand\u202f'Daniel' in grades\u202freturns\u202fFalse\u202f[3]. If you try to retrieve a missing key with square\u2011bracket indexing, such as\u202fgrades['Sylvan'], Python raises a\u202fKeyError\u202f[2][4].",
+   "best_dist": 0.204,
+   "reason": "ok",
+   "cites": [
+    "video 2212",
+    "slide 46",
+    "video 2261"
+   ],
+   "gold": [
+    "slide 45",
+    "slide 46"
+   ]
+  },
+  {
+   "id": "q18",
+   "question": "What do keys() and values() give you for a dictionary?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": false,
+   "rr": 0.0,
+   "cite_precision": 0.0,
+   "cite_hit": false,
+   "answer": "keys() returns a view of the dictionary\u2019s keys, which must be unique and are immutable types such as ints, strings, tuples, etc. [2] values() returns a view of the dictionary\u2019s values, which can be any type (mutable or immutable), may contain duplicates, and can even be lists or other dictionaries. [2]",
+   "best_dist": 0.179,
+   "reason": "ok",
+   "cites": [
+    "slide 48"
+   ],
+   "gold": [
+    "slide 47"
+   ]
+  },
+  {
+   "id": "q19",
+   "question": "What rules apply to dictionary keys and values?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.5,
+   "cite_precision": 0.3333333333333333,
+   "cite_hit": true,
+   "answer": "Dictionary keys must be unique and immutable (hashable) types such as ints, strings, tuples, or booleans; floats can be used but are discouraged [1][2]. Values may be any type, including mutable objects, lists, or other dictionaries, and duplicate values are allowed [1][2]. Keys have no defined order in the dictionary [6].",
+   "best_dist": 0.188,
+   "reason": "ok",
+   "cites": [
+    "video 2360",
+    "slide 48",
+    "video 2408"
+   ],
+   "gold": [
+    "slide 48"
+   ]
+  },
+  {
+   "id": "q20",
+   "question": "How does lyrics_to_frequencies build the word-frequency dictionary?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "The function begins by creating an empty dictionary (myDict = {})[1]. It then iterates over every word in the lyrics list[2]. For each word it checks if the word is already a key in the dictionary; if it is, it increments the count (myDict[word] += 1)[1], and if not, it adds the word with a count of 1 (myDict[word] = 1)[1]. After the loop finishes, it returns the completed word\u2011frequency dictionary.[1]",
+   "best_dist": 0.104,
+   "reason": "ok",
+   "cites": [
+    "slide 51",
+    "video 2504"
+   ],
+   "gold": [
+    "slide 51"
+   ]
+  },
+  {
+   "id": "q21",
+   "question": "What does most_common_words return?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "most_common_words returns a tuple whose first element is a list of the word(s) that have the highest frequency in the given dictionary and whose second element is that maximum frequency value [1][5].",
+   "best_dist": 0.179,
+   "reason": "ok",
+   "cites": [
+    "slide 52",
+    "video 2656"
+   ],
+   "gold": [
+    "slide 52",
+    "slide 50"
+   ]
+  },
+  {
+   "id": "q22",
+   "question": "How does words_often use the frequency dictionary?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "words_often receives a frequency dictionary (freqs) and repeatedly calls most_common_words(freqs) to get the current most frequent word(s) and their count. If the count meets the minTimes threshold, it appends that tuple to the result list and then deletes those words from the dictionary with del(freqs[w]) so they are not considered again. This mutation of the dictionary allows the function to keep finding the next most frequent words until no entry satisfies the threshold, at which point it stops. [1] [2]",
+   "best_dist": 0.162,
+   "reason": "ok",
+   "cites": [
+    "slide 53",
+    "slide 50"
+   ],
+   "gold": [
+    "slide 53",
+    "slide 50"
+   ]
+  },
+  {
+   "id": "q23",
+   "question": "Why is the naive recursive Fibonacci inefficient?",
+   "modality": "figure",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "The naive recursive Fibonacci is inefficient because each call invokes two recursive calls, causing the same sub\u2011problems to be recomputed many times, which leads to exponential work [1]. It does not store previously computed values, so values are recalculated repeatedly; memoizing with a dictionary can avoid this inefficiency [2].",
+   "best_dist": 0.165,
+   "reason": "ok",
+   "cites": [
+    "slide 54",
+    "slide 55"
+   ],
+   "gold": [
+    "slide 55",
+    "slide 54"
+   ]
+  },
+  {
+   "id": "q24",
+   "question": "How many recursive calls do fib(34) and fib_efficient(34) make?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 1.0,
+   "cite_hit": true,
+   "answer": "fib(34) makes 11,405,773 recursive calls, while fib_efficient(34) makes only 65 recursive calls.[1]",
+   "best_dist": 0.152,
+   "reason": "ok",
+   "cites": [
+    "slide 57"
+   ],
+   "gold": [
+    "slide 57"
+   ]
+  },
+  {
+   "id": "q25",
+   "question": "Why is a function allowed to call itself according to the lecture?",
+   "modality": "video",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.3333333333333333,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "A function can call itself because recursion lets us reduce a problem to a simpler instance of the same problem, and the function\u2019s definition can refer to itself to solve that simpler case. This is permissible as long as we include a base case that stops the infinite unwinding, ensuring the recursion eventually terminates.[1][3]",
+   "best_dist": 0.255,
+   "reason": "ok",
+   "cites": [
+    "video 245",
+    "video 293"
+   ],
+   "gold": [
+    "video 293",
+    "slide 6"
+   ]
+  },
+  {
+   "id": "q26",
+   "question": "How do the bindings of n change as a recursive factorial function is called repeatedly?",
+   "modality": "video",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.5,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "Each recursive call creates a new scope that contains its own binding of\u202fn. The binding in a given frame never changes because recursive calls do not mutate variables in the caller\u2019s environment. Thus the value of\u202fn in each call remains fixed (e.g., n=4, then n=3, etc.) and is independent of the bindings in other frames.[4][5]",
+   "best_dist": 0.167,
+   "reason": "ok",
+   "cites": [
+    "slide 12",
+    "video 790"
+   ],
+   "gold": [
+    "slide 11",
+    "slide 12",
+    "video 739"
+   ]
+  },
+  {
+   "id": "q27",
+   "question": "What makes an algorithm a divide-and-conquer algorithm?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "An algorithm is divide\u2011and\u2011conquer when it solves a hard problem by breaking it into a set of sub\u2011problems that are easier than the original, solving each sub\u2011problem (often recursively), and then combining those solutions to solve the original problem [1]. It repeatedly reduces the problem to smaller instances until reaching a base case that can be solved directly, as described in the lecture\u2019s discussion of divide\u2011and\u2011conquer recursion [2].",
+   "best_dist": 0.184,
+   "reason": "ok",
+   "cites": [
+    "slide 39",
+    "video 1971"
+   ],
+   "gold": [
+    "slide 39",
+    "slide 6"
+   ]
+  },
+  {
+   "id": "q28",
+   "question": "Why use a dictionary instead of separate lists to store student information?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.2,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "Separate lists require parallel structures that must stay the same length and be indexed by integer positions, which becomes messy and error\u2011prone when many attributes are tracked [1][5]. A dictionary stores each student\u2019s data as a key\u2011value pair, letting you retrieve information directly by the student\u2019s name instead of an index [4]. This provides a cleaner, single data structure, avoids the need to manage multiple lists, and lets you index items of interest directly (not always an int) [6].",
+   "best_dist": 0.166,
+   "reason": "ok",
+   "cites": [
+    "slide 41",
+    "slide 44",
+    "slide 42",
+    "slide 43"
+   ],
+   "gold": [
+    "slide 42",
+    "slide 43"
+   ]
+  },
+  {
+   "id": "q29",
+   "question": "How is mathematical induction related to checking that recursive code works?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 0.5,
+   "cite_precision": 0.0,
+   "cite_hit": false,
+   "answer": "Mathematical induction is used to prove that a recursive function is correct for all inputs. First you show the base case (the smallest input) works, then you assume the function works for a smaller instance and prove it also works for the next larger one. This mirrors recursion: each call reduces the problem to a smaller version and combines the result. By establishing the base case and the inductive step, you can conclude the recursive code terminates and returns the right answer for any input [3][4][1].",
+   "best_dist": 0.162,
+   "reason": "ok",
+   "cites": [
+    "video 1180",
+    "video 1032",
+    "video 1131"
+   ],
+   "gold": [
+    "slide 14",
+    "slide 15",
+    "slide 16",
+    "slide 17"
+   ]
+  },
+  {
+   "id": "q30",
+   "question": "How does recursion compare with iteration?",
+   "modality": "slide",
+   "grounded": true,
+   "hit_at_k": true,
+   "rr": 1.0,
+   "cite_precision": 0.5,
+   "cite_hit": true,
+   "answer": "Recursion tends to be simpler and more intuitive than iteration, letting you express a problem as a smaller version of itself [1]. From a programmer\u2019s point of view the recursive formulation can be easier to write and understand, and may even be more efficient to develop [4]. However, recursion can be less efficient for the computer because each call adds a new stack frame, whereas iteration uses a loop that typically consumes less overhead [1].",
+   "best_dist": 0.149,
+   "reason": "ok",
+   "cites": [
+    "slide 13",
+    "video 885"
+   ],
+   "gold": [
+    "slide 13"
+   ]
+  }
+ ],
+ "off_topic": [
+  {
+   "id": "o01",
+   "kind": "unrelated",
+   "question": "What is the capital of France?",
+   "refused": true,
+   "best_dist": 0.52,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o02",
+   "kind": "unrelated",
+   "question": "Who won the 2018 football World Cup?",
+   "refused": true,
+   "best_dist": 0.53,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o03",
+   "kind": "unrelated",
+   "question": "What is a good recipe for pasta carbonara?",
+   "refused": true,
+   "best_dist": 0.503,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o04",
+   "kind": "unrelated",
+   "question": "How do I train a neural network in PyTorch?",
+   "refused": true,
+   "best_dist": 0.363,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o05",
+   "kind": "unrelated",
+   "question": "How does the TCP three-way handshake work?",
+   "refused": true,
+   "best_dist": 0.381,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o06",
+   "kind": "near_topic",
+   "question": "What is the time complexity of merge sort?",
+   "refused": true,
+   "best_dist": 0.301,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o07",
+   "kind": "near_topic",
+   "question": "How does inheritance work with Python classes?",
+   "refused": true,
+   "best_dist": 0.29,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o08",
+   "kind": "near_topic",
+   "question": "What is a lambda function in Python?",
+   "refused": true,
+   "best_dist": 0.319,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o09",
+   "kind": "near_topic",
+   "question": "How do I read a CSV file in Python?",
+   "refused": true,
+   "best_dist": 0.335,
+   "reason": "low_similarity",
+   "answer": ""
+  },
+  {
+   "id": "o10",
+   "kind": "near_topic",
+   "question": "What is a Python decorator?",
+   "refused": true,
+   "best_dist": 0.331,
+   "reason": "low_similarity",
+   "answer": ""
+  }
+ ]
+}

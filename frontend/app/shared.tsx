@@ -15,7 +15,7 @@ export type Citation = {
   snippet: string;
   url: string;
 };
-export type Topic = { topic: string; name: string; p: number; n: number };
+export type Topic = { topic: string; name: string; concepts?: string[]; p: number; n: number };
 export type Recommended = { topic: string; name: string; reason: string };
 export type LearnerState = {
   student: string;

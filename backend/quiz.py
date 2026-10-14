@@ -50,6 +50,15 @@ _verify_state = {"model": VERIFY_MODEL}
 
 
 # ---------------------------------------------------------------- helpers
+def _retry_seconds(msg):
+    """Parse 'try again in 1h2m3.5s' style hints from a Groq rate-limit message."""
+    m = re.search(r"try again in\s+(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", msg)
+    if not m or not any(m.groups()):
+        return None
+    h, mi, sec = (float(x) if x else 0.0 for x in m.groups())
+    return h * 3600 + mi * 60 + sec
+
+
 def call_json(model, prompt, temperature=0.0):
     for _ in range(5):
         try:
@@ -58,9 +67,14 @@ def call_json(model, prompt, temperature=0.0):
                 messages=[{"role": "system", "content": "You return only valid JSON."},
                           {"role": "user", "content": prompt}])
             return json.loads(r.choices[0].message.content)
-        except RateLimitError:
-            time.sleep(15)
-    raise RuntimeError("Rate limited too many times")
+        except RateLimitError as e:
+            msg = str(e)
+            wait = _retry_seconds(msg)
+            if wait is not None and wait > 180:       # a daily/hourly cap: waiting here will not help
+                raise RuntimeError(f"Groq rate limit on {model}, retry in {wait / 60:.0f} min. {msg[:260]}")
+            print(f"[quiz] rate limited on {model}; waiting {min(wait or 15, 60):.0f}s")
+            time.sleep(min((wait or 15) + 1, 61))
+    raise RuntimeError(f"Rate limited too many times on {model}")
 
 
 def verify_json(prompt):
@@ -151,12 +165,13 @@ def gen_prompt(qtype, topic_name, difficulty, chunks):
     head = (f"You write exam questions for the course unit: {COURSE_NAME}. Topic: {topic_name}. "
             f"Difficulty: {difficulty}. {RULES}")
     if qtype == "mcq":
-        spec = ('Write ONE multiple-choice question with exactly 4 options and exactly one correct option. '
+        spec = ('Write ONE multiple-choice question with exactly 4 distinct options and exactly one correct option. '
                 'Each wrong option must be plausible and reflect a specific common misconception. '
-                'Return JSON: {"question": str, "options": [4 strings], "answer_index": 0-3, '
+                'Return JSON: {"question": str, "options": [4 distinct strings], '
+                '"correct_option": "the exact text of the correct option, copied from options", '
                 '"explanation": str (1-2 sentences on why the correct option is right), '
-                '"option_misconceptions": [4 strings: the misconception each wrong option reflects, '
-                '"" for the correct one], "source_excerpt": number of the excerpt the question is based on}')
+                '"wrong_option_misconceptions": [{"option": "exact text of one wrong option", '
+                '"misconception": str}], "source_excerpt": number of the excerpt the question is based on}')
     elif qtype == "short":
         spec = ('Write ONE short-answer question that can be answered in 1-2 sentences. '
                 'Return JSON: {"question": str, "answer": str (model answer), "key_points": [2-3 str], '
@@ -182,16 +197,32 @@ def generate(qtype, topic_name, difficulty, chunks):
     out = {"type": qtype, "question": q, "explanation": str(d.get("explanation", "")).strip(),
            "source_index": src - 1}
     if qtype == "mcq":
-        opts = [str(o).strip() for o in d.get("options", [])]
-        ai = to_int(d.get("answer_index"))
-        mis = [str(x or "") for x in d.get("option_misconceptions", [""] * 4)]
-        if len(opts) != 4 or len(set(opts)) != 4 or ai is None or not 0 <= ai <= 3 or len(mis) != 4:
-            raise ValueError("bad multiple-choice structure")
+        opts = [str(o.get("text", o) if isinstance(o, dict) else o).strip() for o in d.get("options", [])]
+        if len(opts) != 4 or len(set(opts)) != 4:
+            raise ValueError(f"bad multiple-choice structure: {len(opts)} options, {len(set(opts))} distinct")
+        correct = str(d.get("correct_option", "")).strip()
+        ai = opts.index(correct) if correct in opts else None
+        if ai is None:                                   # fall back to an index, a letter, or option text
+            raw = d.get("answer_index", d.get("answer"))
+            ai = to_int(raw)
+            if ai is None and isinstance(raw, str):
+                r = raw.strip()
+                if len(r) == 1 and r.upper() in "ABCD":
+                    ai = "ABCD".index(r.upper())
+                elif r in opts:
+                    ai = opts.index(r)
+        if ai is None or not 0 <= ai <= 3:
+            raise ValueError(f"bad multiple-choice structure: correct answer not identifiable ({correct[:40]!r})")
+        mis_map = {}
+        for m in d.get("wrong_option_misconceptions", []) if isinstance(d.get("wrong_option_misconceptions"), list) else []:
+            if isinstance(m, dict):
+                mis_map[str(m.get("option", "")).strip()] = str(m.get("misconception", "")).strip()
+        mis = [mis_map.get(o, "") if i != ai else "" for i, o in enumerate(opts)]
         order = list(range(4))
         random.shuffle(order)                       # remove the model's position bias
         out["options"] = [opts[i] for i in order]
         out["answer_index"] = order.index(ai)
-        out["option_misconceptions"] = [mis[i] if i != ai else "" for i in order]
+        out["option_misconceptions"] = [mis[i] for i in order]
     elif qtype == "short":
         out["answer"] = str(d.get("answer", "")).strip()
         out["key_points"] = [str(k) for k in d.get("key_points", [])][:3]
@@ -364,7 +395,7 @@ def quiz_answer(body: AnswerIn):
         if not correct:
             misconception = str(judged.get("misconception", "")).strip()
 
-    before, after = learner.record_answer(body.student, q["topic"], correct, p["type"])
+    before, after = learner.record_answer(body.student, q["topic"], correct, p["type"], q["difficulty"])
     with learner.db() as c:
         c.execute("INSERT INTO attempts(student, session, question_id, topic, qtype, correct, given, "
                   "misconception, p_before, p_after, ts) VALUES (?,?,?,?,?,?,?,?,?,?,?)",

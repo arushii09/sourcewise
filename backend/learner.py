@@ -19,6 +19,9 @@ P_INIT = 0.3        # prior mastery for a new student
 P_LEARN = 0.15      # t: chance of learning on each attempt
 P_SLIP = 0.10       # s: knows it but answers wrong
 GUESS = {"mcq": 0.25, "short": 0.05, "numerical": 0.05}   # g: doesn't know but answers right
+# Difficulty-aware BKT: easy questions are easier to get right by chance, hard ones are slipped more often.
+DIFF_GUESS = {"easy": 0.10, "medium": 0.0, "hard": -0.05}
+DIFF_SLIP = {"easy": -0.03, "medium": 0.0, "hard": 0.05}
 CHAT_NUDGE = 0.02   # weak evidence: asking the tutor about a topic nudges mastery down slightly
 WEAK = 0.5          # below this a topic counts as weak
 
@@ -69,21 +72,29 @@ def ensure_student(student):
             c.execute("INSERT OR IGNORE INTO mastery VALUES (?, ?, ?, 0, ?)", (student, t["id"], P_INIT, now))
 
 
-def bkt_update(p, correct, guess):
+def params(qtype, difficulty="medium"):
+    """Guess and slip probabilities for a question type and difficulty."""
+    g = min(0.6, max(0.02, GUESS.get(qtype, 0.05) + DIFF_GUESS.get(difficulty, 0.0)))
+    s = min(0.4, max(0.02, P_SLIP + DIFF_SLIP.get(difficulty, 0.0)))
+    return g, s
+
+
+def bkt_update(p, correct, guess, slip=P_SLIP):
     if correct:
-        post = p * (1 - P_SLIP) / (p * (1 - P_SLIP) + (1 - p) * guess)
+        post = p * (1 - slip) / (p * (1 - slip) + (1 - p) * guess)
     else:
-        post = p * P_SLIP / (p * P_SLIP + (1 - p) * (1 - guess))
+        post = p * slip / (p * slip + (1 - p) * (1 - guess))
     return post + (1 - post) * P_LEARN
 
 
-def record_answer(student, topic, correct, qtype):
+def record_answer(student, topic, correct, qtype, difficulty="medium"):
     """Update mastery after a graded answer. Returns (before, after)."""
     ensure_student(student)
     with _lock, db() as c:
         row = c.execute("SELECT p FROM mastery WHERE student=? AND topic=?", (student, topic)).fetchone()
         before = row["p"] if row else P_INIT
-        after = bkt_update(before, bool(correct), GUESS.get(qtype, 0.05))
+        g, sl = params(qtype, difficulty)
+        after = bkt_update(before, bool(correct), g, sl)
         now = time.time()
         c.execute("INSERT OR REPLACE INTO mastery VALUES (?, ?, ?, COALESCE((SELECT n FROM mastery "
                   "WHERE student=? AND topic=?), 0) + 1, ?)", (student, topic, after, student, topic, now))
@@ -108,12 +119,14 @@ def nudge_from_chat(student, topic):
 
 def get_mastery(student):
     ensure_student(student)
-    names = {t["id"]: t["name"] for t in load_topics()}
-    order = {t["id"]: i for i, t in enumerate(load_topics())}
+    topics = load_topics()
+    names = {t["id"]: t["name"] for t in topics}
+    concepts = {t["id"]: t.get("concepts", []) for t in topics}
+    order = {t["id"]: i for i, t in enumerate(topics)}
     with db() as c:
         rows = c.execute("SELECT topic, p, n FROM mastery WHERE student=?", (student,)).fetchall()
-    out = [{"topic": r["topic"], "name": names.get(r["topic"], r["topic"]), "p": r["p"], "n": r["n"]}
-           for r in rows if r["topic"] in names]
+    out = [{"topic": r["topic"], "name": names.get(r["topic"], r["topic"]), "concepts": concepts.get(r["topic"], []),
+            "p": r["p"], "n": r["n"]} for r in rows if r["topic"] in names]
     return sorted(out, key=lambda x: order[x["topic"]])
 
 
